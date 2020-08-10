@@ -19,7 +19,7 @@ pub trait Vector2Godot {
     fn snapped(self, by: Self) -> Self;
     /// Returns a perpendicular vector.
     fn tangent(self) -> Self;
-    /// Moves the vector toward to by the fixed delta amount.
+    /// Returns `self` moved towards `to` by the distance `delta`, clamped by `to`.
     fn move_towards(self, to: Vector2, delta: f32) -> Self;
     /// Internal API for converting to `sys` representation. Makes it possible to remove
     /// `transmute`s elsewhere.
@@ -34,8 +34,6 @@ pub trait Vector2Godot {
     #[doc(hidden)]
     fn from_sys(v: sys::godot_vector2) -> Self;
 }
-
-const CMP_EPSILON: f32 = 0.00001;
 
 impl Vector2Godot for Vector2 {
     #[inline]
@@ -96,7 +94,7 @@ impl Vector2Godot for Vector2 {
     fn move_towards(self, to: Vector2, delta: f32) -> Self {
         let vd = to - self;
         let len = vd.length();
-        if len <= delta || len < CMP_EPSILON {
+        if len <= delta || approx::abs_diff_eq!(len, 0.00001) {
             to
         } else {
             self + vd / len * delta
