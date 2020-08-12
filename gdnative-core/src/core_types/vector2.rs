@@ -94,10 +94,10 @@ impl Vector2Godot for Vector2 {
     fn move_towards(self, to: Vector2, delta: f32) -> Self {
         let vd = to - self;
         let len = vd.length();
-        if len <= delta || approx::abs_diff_eq!(len, 0.00001) {
+        if len <= delta || approx::abs_diff_eq!(len, f32::EPSILON) {
             to
         } else {
-            self + vd / len * delta
+            Vector2::lerp(&self, to, delta / len)
         }
     }
 
